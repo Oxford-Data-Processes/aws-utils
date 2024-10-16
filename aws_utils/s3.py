@@ -29,6 +29,11 @@ class S3Handler:
         json_data = json_object["Body"].read()
         return json.loads(json_data)
 
+    def load_parquet_from_s3(self, bucket_name, parquet_key):
+        parquet_object = self.s3_client.get_object(Bucket=bucket_name, Key=parquet_key)
+        parquet_data = parquet_object["Body"].read()
+        return parquet_data
+
     def upload_parquet_to_s3(self, bucket_name, parquet_key, parquet_data):
         self.s3_client.put_object(
             Bucket=bucket_name,
