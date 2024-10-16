@@ -4,7 +4,7 @@ import os
 from io import StringIO
 
 
-class S3Client:
+class S3Handler:
     def __init__(
         self, aws_access_key_id, aws_secret_access_key, aws_session_token, aws_region
     ):
