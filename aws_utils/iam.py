@@ -32,7 +32,6 @@ class AWSCredentials(IAM):
         self.role_arn = f"arn:aws:iam::{self.aws_account_id}:role/{self.role}"
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
-        self.aws_session_token = self.assume_role()
 
     def get_aws_credentials(self):
         session_name = f"MySession-{int(time.time())}"
