@@ -3,7 +3,7 @@ import os
 import time
 
 
-class AthenaQueryExecutor:
+class AthenaHandler:
     def __init__(self, database: str, workgroup: str, output_bucket: str):
         self.database = database
         self.workgroup = workgroup
