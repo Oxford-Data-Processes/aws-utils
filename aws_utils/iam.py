@@ -28,6 +28,7 @@ class AWSCredentials(IAM):
     def __init__(self, aws_access_key_id, aws_secret_access_key, stage="dev"):
         super().__init__(stage)
         self.aws_account_id = self.get_aws_account_id()
+        self.aws_region = "eu-west-2"
         self.role = self.get_iam_role()
         self.role_arn = f"arn:aws:iam::{self.aws_account_id}:role/{self.role}"
         self.aws_access_key_id = aws_access_key_id
@@ -54,3 +55,5 @@ class AWSCredentials(IAM):
         os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id
         os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key
         os.environ["AWS_SESSION_TOKEN"] = aws_session_token
+        os.environ["AWS_REGION"] = self.aws_region
+        os.environ["AWS_ACCOUNT_ID"] = self.aws_account_id
