@@ -41,3 +41,15 @@ class S3Handler:
             Body=parquet_data,
             ContentType="application/octet-stream",
         )
+
+    def upload_excel_to_s3(self, bucket_name, excel_key, excel_data):
+        self.s3_client.put_object(
+            Bucket=bucket_name,
+            Key=excel_key,
+            Body=excel_data,
+            ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    def list_objects(self, bucket_name, prefix):
+        response = self.s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+        return response.get("Contents", [])
