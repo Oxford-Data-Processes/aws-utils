@@ -1,8 +1,11 @@
-from aws_utils import s3, iam, athena
+from aws_utils import iam, logs
 import streamlit as st
-import os
-import pandas as pd
 
+# Test parameters
+bucket_name = "rtg-automotive-bucket-654654324108"
+project_name = "frontend"
+
+# Initialize AWS credentials
 aws_access_key_id = st.secrets["aws_credentials"]["AWS_ACCESS_KEY_ID"]
 aws_secret_access_key = st.secrets["aws_credentials"]["AWS_SECRET_ACCESS_KEY"]
 aws_account_id = st.secrets["aws_credentials"]["AWS_ACCOUNT_ID"]
@@ -15,17 +18,9 @@ aws_credentials = iam.AWSCredentials(
 
 aws_credentials.get_aws_credentials()
 
+# Test for get_logs function
+logs_handler = logs.LogsHandler()
+logs = logs_handler.get_logs(bucket_name, project_name)
 
-athena_query_executor = athena.AthenaQueryExecutor(
-    database="rtg_automotive",
-    workgroup="rtg-automotive-workgroup",
-    output_bucket=f"rtg-automotive-bucket-{aws_account_id}",
-)
-
-query = """SELECT * FROM "rtg_automotive"."store" WHERE ebay_store = 'RTG' AND supplier = 'RTG' LIMIT 10;"""
-response_csv = athena_query_executor.run_query(query)
-
-df = pd.DataFrame(
-    response_csv[1:], columns=response_csv[0]
-)  # Create DataFrame from response
-df.to_csv("response_data.csv", index=False)  # Write DataFrame to CSV
+# Print the logs to verify the output
+print(logs)  # This will display the logs fetched from S3
