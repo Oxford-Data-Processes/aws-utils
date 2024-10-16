@@ -15,7 +15,6 @@ class SQSHandler:
 
     @staticmethod
     def extract_datetime_from_sns_message(message):
-        # Regular expression to find the datetime in the message
         match = re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", message)
         return match.group(0) if match else None
 
@@ -30,12 +29,10 @@ class SQSHandler:
                     WaitTimeSeconds=5,
                     MessageAttributeNames=["All"],
                 )
-
-                # Check if there are any messages
                 messages = response.get("Messages", [])
+
                 if not messages:
-                    print("No more messages in the queue.")
-                    break  # Exit the loop if no more messages
+                    break
 
                 for message in messages:
                     timestamp = self.extract_datetime_from_sns_message(message["Body"])
@@ -47,7 +44,7 @@ class SQSHandler:
             if not all_messages:
                 raise Exception("No messages were retrieved from the queue.")
 
-            all_messages.sort(key=lambda x: x["timestamp"])
+            all_messages.sort(key=lambda x: (x["timestamp"] is None, x["timestamp"]))
             return all_messages
         except Exception as e:
             raise Exception(f"An error occurred while retrieving messages: {e}")
