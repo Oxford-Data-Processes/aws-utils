@@ -8,10 +8,12 @@ class LogsHandler:
     def log_action(self, bucket_name, project_name, action, user):
         s3_client = boto3.client("s3")
 
-        timestamp = datetime.now(pytz.timezone("Europe/London")).isoformat()
+        timestamp = datetime.now(pytz.timezone("Europe/London")).strftime(
+            "%Y-%m-%dT%H:%M:%S"
+        )
         log_entry = {"timestamp": timestamp, "action": action, "user": user}
 
-        log_file_name = f"logs/{project_name}/{datetime.now(pytz.timezone('Europe/London')).strftime('%Y-%m-%dT%H:%M:%S')}.json"
+        log_file_name = f"logs/{project_name}/{timestamp}.json"
 
         s3_client.put_object(
             Bucket=bucket_name,
