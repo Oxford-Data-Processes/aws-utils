@@ -9,9 +9,7 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/Oxford-Data-Processes/aws-utils",
-    packages=find_packages(
-        include=["aws_utils", "aws_utils.*"]
-    ),  # Explicitly include the package
+    packages=find_packages(include=["aws_utils", "aws_utils.*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
