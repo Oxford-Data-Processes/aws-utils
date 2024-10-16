@@ -1,4 +1,4 @@
-from aws_utils import s3, iam
+from aws_utils import s3, iam, athena
 import streamlit as st
 import os
 import pandas as pd
@@ -16,14 +16,16 @@ aws_credentials = iam.AWSCredentials(
 aws_credentials.get_aws_credentials()
 
 
-last_csv_key = "athena-results/0b091758-c380-42f4-a0ba-a99b25652114.csv"
-project_bucket_name = "rtg-automotive-bucket-654654324108"
-s3_handler = s3.S3Handler(
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-    aws_session_token=os.environ["AWS_SESSION_TOKEN"],
-    aws_region=os.environ["AWS_REGION"],
+athena_query_executor = athena.AthenaQueryExecutor(
+    database="rtg_automotive",
+    workgroup="rtg-automotive-workgroup",
+    output_bucket=f"rtg-automotive-bucket-{aws_account_id}",
 )
-data = s3_handler.load_csv_from_s3(project_bucket_name, last_csv_key)
-df = pd.DataFrame(data[1:], columns=data[0])
-print(df.head())
+
+query = """SELECT * FROM "rtg_automotive"."store" WHERE ebay_store = 'RTG' AND supplier = 'RTG' LIMIT 10;"""
+response_csv = athena_query_executor.run_query(query)
+
+df = pd.DataFrame(
+    response_csv[1:], columns=response_csv[0]
+)  # Create DataFrame from response
+df.to_csv("response_data.csv", index=False)  # Write DataFrame to CSV
