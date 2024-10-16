@@ -2,10 +2,6 @@ import boto3
 import time
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 class IAM:
     def __init__(self, stage="dev"):
@@ -59,7 +55,3 @@ class AWSCredentials(IAM):
         os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id
         os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key
         os.environ["AWS_SESSION_TOKEN"] = aws_session_token
-
-        self.aws_access_key_id = aws_access_key_id
-        self.aws_secret_access_key = aws_secret_access_key
-        self.aws_session_token = aws_session_token

@@ -16,7 +16,5 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.11",
-    install_requires=[
-        "boto3",
-    ],
+    install_requires=["boto3"],
 )
