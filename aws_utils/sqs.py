@@ -42,9 +42,9 @@ class SQSHandler:
                     )
 
             if not all_messages:
-                raise Exception("No messages were retrieved from the queue.")
+                return []
 
-            all_messages.sort(key=lambda x: (x["timestamp"] is None, x["timestamp"]))
+            all_messages.sort(key=lambda x: x["timestamp"])
             return all_messages
         except Exception as e:
-            raise Exception(f"An error occurred while retrieving messages: {e}")
+            raise Exception(e)
