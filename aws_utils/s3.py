@@ -34,6 +34,11 @@ class S3Handler:
         parquet_data = parquet_object["Body"].read()
         return parquet_data
 
+    def load_excel_from_s3(self, bucket_name, object_key):
+        response = self.s3_client.get_object(Bucket=bucket_name, Key=object_key)
+        excel_data = response["Body"].read()
+        return excel_data
+
     def upload_parquet_to_s3(self, bucket_name, parquet_key, parquet_data):
         self.s3_client.put_object(
             Bucket=bucket_name,
