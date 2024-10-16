@@ -5,13 +5,15 @@ from io import StringIO
 
 
 class S3Client:
-    def __init__(self):
+    def __init__(
+        self, aws_access_key_id, aws_secret_access_key, aws_session_token, aws_region
+    ):
         self.s3_client = boto3.client(
             "s3",
-            aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-            aws_session_token=os.environ["AWS_SESSION_TOKEN"],
-            region_name=os.environ["AWS_REGION"],
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+            region_name=aws_region,
         )
 
     def load_csv_from_s3(self, bucket_name, csv_key):
