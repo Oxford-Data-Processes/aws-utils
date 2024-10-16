@@ -1,6 +1,7 @@
 import boto3
 import csv
 import os
+import json
 from io import StringIO
 
 
@@ -22,3 +23,8 @@ class S3Handler:
         csv_reader = csv.reader(StringIO(csv_data))
         data = [row for row in csv_reader]
         return data
+
+    def load_json_from_s3(self, bucket_name, json_key):
+        json_object = self.s3_client.get_object(Bucket=bucket_name, Key=json_key)
+        json_data = json_object["Body"].read()
+        return json.loads(json_data)
