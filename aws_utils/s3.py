@@ -55,6 +55,15 @@ class S3Handler:
             ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
 
+    def upload_json_to_s3(self, bucket_name, json_key, json_data):
+        json_data = json.dumps(json_data)
+        self.s3_client.put_object(
+            Bucket=bucket_name,
+            Key=json_key,
+            Body=json_data,
+            ContentType="application/json",
+        )
+
     def list_objects(self, bucket_name, prefix):
         response = self.s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
         return response.get("Contents", [])
