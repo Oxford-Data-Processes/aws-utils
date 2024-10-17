@@ -5,6 +5,25 @@ import json
 from io import StringIO
 
 
+class S3Utils:
+    @staticmethod
+    def extract_partition_values(object_key):
+        partition_values = {}
+        parts = object_key.split("/")
+        paths = []
+
+        for part in parts:
+            if "%" in part:
+                part = part.replace("%3D", "=")
+                if "=" in part:
+                    key, value = part.split("=")
+                    partition_values[key] = value
+            else:
+                paths.append(part)
+
+        return partition_values, paths
+
+
 class S3Handler:
     def __init__(
         self, aws_access_key_id, aws_secret_access_key, aws_session_token, aws_region
