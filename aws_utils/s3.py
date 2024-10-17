@@ -18,10 +18,12 @@ class S3Utils:
                 if "=" in part:
                     key, value = part.split("=")
                     partition_values[key] = value
-            else:
+            elif "." not in part:
                 paths.append(part)
+            else:
+                file_name = part
 
-        return partition_values, paths
+        return partition_values, paths, file_name
 
 
 class S3Handler:
