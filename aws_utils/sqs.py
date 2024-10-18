@@ -18,6 +18,13 @@ class SQSHandler:
         match = re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", message)
         return match.group(0) if match else None
 
+    def delete_all_sqs_messages(self, queue_url):
+        all_messages = self.get_all_sqs_messages(queue_url)
+        for message in all_messages:
+            self.sqs_client.delete_message(
+                QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
+            )
+
     def get_all_sqs_messages(self, queue_url):
         all_messages = []
         try:
