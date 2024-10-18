@@ -33,7 +33,7 @@ class GlueHandler:
         )
 
         partition_input = {
-            "Values": list(partition_values.keys()),
+            "Values": list(partition_values.values()),
             "LastAccessTime": current_time,
             "StorageDescriptor": {
                 "Columns": [],
