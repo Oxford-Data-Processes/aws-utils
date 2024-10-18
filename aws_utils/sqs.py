@@ -54,7 +54,8 @@ class SQSHandler:
 
         Returns:
             List[Dict[str, Optional[str]]]: A list of dictionaries containing the
-            timestamp and message body for each message.
+            timestamp and message body for each message. Eg. [{"timestamp": "2024-02-20T12:00:00", "message": "Hello, world!"}]
+            Timestamp format: YYYY-MM-DDTHH:MM:SS
         """
         all_messages = []
         try:
