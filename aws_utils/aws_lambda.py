@@ -5,6 +5,15 @@ import time
 
 class LambdaHandler:
     def trigger_lambda_function(self, function_name: str) -> bool:
+        """
+        Trigger an AWS Lambda function.
+
+        Args:
+            function_name (str): The name of the Lambda function to invoke.
+
+        Returns:
+            bool: True if the function was triggered successfully, False otherwise.
+        """
         lambda_client = boto3.client(
             "lambda",
             region_name="eu-west-2",
