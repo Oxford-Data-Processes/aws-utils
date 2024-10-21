@@ -7,11 +7,13 @@ class GlueHandler:
     def __init__(self):
         self.glue_client = boto3.client("glue", region_name=os.environ["AWS_REGION"])
 
-    def build_partition_location(self, bucket_name, table_name, partition_values):
+    def build_partition_location(
+        self, bucket_name, database_name, table_name, partition_values
+    ):
         partition_path = "/".join(
             f"{key}={value}" for key, value in partition_values.items()
         )
-        return f"s3://{bucket_name}/{table_name}/{partition_path}/"
+        return f"s3://{bucket_name}/{database_name}/{table_name}/{partition_path}/"
 
     def add_partition_to_glue(
         self, database_name, table_name, bucket_name, partition_values
@@ -29,7 +31,7 @@ class GlueHandler:
         ]
 
         partition_location = self.build_partition_location(
-            bucket_name, table_name, partition_values
+            bucket_name, database_name, table_name, partition_values
         )
 
         partition_input = {
