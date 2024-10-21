@@ -27,6 +27,6 @@ class LambdaHandler:
                 InvocationType="RequestResponse",
             )
             time.sleep(2)
-            return True
+            return response
         except Exception as e:
             raise e
