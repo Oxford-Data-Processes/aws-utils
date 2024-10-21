@@ -29,5 +29,4 @@ class LambdaHandler:
             time.sleep(2)
             return True
         except Exception as e:
-            st.error(f"Error: {str(e)}")
-            return False
+            raise e
