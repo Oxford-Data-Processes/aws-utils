@@ -9,14 +9,14 @@ class EventsHandler:
             "events", region_name=os.environ["AWS_REGION"]
         )
 
-        response = eventbridge_client.put_events(
-            Entries=[
-                {
-                    "Source": event_source,
-                    "DetailType": detail_type,
-                    "Detail": json.dumps(detail),
-                    "EventBusName": event_bus_name,
-                }
-            ]
-        )
-        return response
+        entries = [
+            {
+                "Source": event_source,
+                "DetailType": detail_type,
+                "Detail": json.dumps(detail),
+                "EventBusName": event_bus_name,
+            }
+        ]
+
+        response = eventbridge_client.put_events(Entries=entries)
+        return response, entries
