@@ -77,5 +77,5 @@ class GlueHandler:
         databases = []
         paginator = self.glue_client.get_paginator("get_databases")
         for page in paginator.paginate(CatalogId=os.environ["AWS_ACCOUNT_ID"]):
-            databases.extend(page["DatabaseList"])
+            databases.extend([db["Name"] for db in page["DatabaseList"]])
         return databases
