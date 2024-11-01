@@ -3,6 +3,7 @@ import os
 import json
 import logging
 from typing import Any, Dict, Tuple, Optional, List
+from jsonschema import validate, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -63,3 +64,26 @@ class EventsHandler:
         except Exception as e:
             logger.error(f"Error retrieving schema: {e}")
             return None
+
+    def validate_event(self, event_detail: Any, event_schema: Dict[str, Any]) -> bool:
+        """
+        Validates the provided event detail against the specified schema.
+
+        Args:
+            event_detail (Any): The detail of the event to be validated.
+            event_schema (Dict[str, Any]): The schema against which the event detail will be validated.
+
+        Returns:
+            bool: True if the event detail is valid according to the schema, False otherwise.
+
+        Logs:
+            Info: Indicates if the event detail is valid.
+            Error: Logs any validation errors encountered during the process.
+        """
+        try:
+            validate(instance=event_detail, schema=event_schema)
+            logger.info("Event detail is valid.")
+            return True
+        except ValidationError as e:
+            logger.error(f"Event detail validation error: {e.message}")
+            return False
