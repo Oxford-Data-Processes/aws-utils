@@ -86,4 +86,6 @@ class EventsHandler:
             return True
         except ValidationError as e:
             logger.error(f"Event detail validation error: {e.message}")
-            return False
+            raise Exception(
+                f"Event is not valid: {event_detail} \n Schema: {event_schema}"
+            )
