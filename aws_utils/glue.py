@@ -72,3 +72,10 @@ class GlueHandler:
             )
         except Exception as e:
             raise e
+
+    def get_all_databases(self):
+        databases = []
+        paginator = self.glue_client.get_paginator("get_databases")
+        for page in paginator.paginate(CatalogId=os.environ["AWS_ACCOUNT_ID"]):
+            databases.extend(page["DatabaseList"])
+        return databases
