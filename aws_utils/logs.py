@@ -26,7 +26,6 @@ class LogsHandler:
         s3_client = boto3.client("s3")
         log_prefix = f"logs/{project_name}/"
 
-        # List objects in the specified S3 bucket with the log prefix
         response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=log_prefix)
         logs = response.get("Contents", [])
 
@@ -37,7 +36,6 @@ class LogsHandler:
 
         for log in logs:
             log_key = log["Key"]
-            # Fetch and display log content
             log_object = s3_client.get_object(Bucket=bucket_name, Key=log_key)
             log_content = json.loads(log_object["Body"].read().decode("utf-8"))[0]
 

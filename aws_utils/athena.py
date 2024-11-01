@@ -1,6 +1,7 @@
 import boto3
 import os
 import time
+from typing import Dict
 
 
 class AthenaHandler:
@@ -12,56 +13,37 @@ class AthenaHandler:
             "athena", region_name=os.environ["AWS_REGION"]
         )
 
-    def run_query(self, query: str) -> list:
-        response = self.athena_client.start_query_execution(
+    def run_query_and_get_results(self, query: str) -> list[Dict[str, str]]:
+        query_id = self.athena_client.start_query_execution(
             QueryString=query,
             QueryExecutionContext={"Database": self.database},
-            ResultConfiguration={
-                "OutputLocation": f"s3://{self.output_bucket}/athena-results/"
-            },
+            ResultConfiguration={"OutputLocation": f"s3://{self.output_bucket}/"},
             WorkGroup=self.workgroup,
-        )
+        )["QueryExecutionId"]
 
-        query_execution_id = response["QueryExecutionId"]
-        return self._get_query_results(query_execution_id)
-
-    def _get_query_results(self, query_execution_id: str) -> list:
-        results = []
-        next_token = None
-
+        # Wait for the query to complete
         while True:
-            response = self.athena_client.get_query_execution(
-                QueryExecutionId=query_execution_id
-            )
-            query_state = response["QueryExecution"]["Status"]["State"]
-
-            if query_state in ["SUCCEEDED", "FAILED", "CANCELLED"]:
+            response = self.athena_client.get_query_execution(QueryExecutionId=query_id)
+            status = response["QueryExecution"]["Status"]["State"]
+            if status in ["SUCCEEDED", "FAILED", "CANCELLED"]:
                 break
-            time.sleep(0.5)
+            time.sleep(1)
 
-        if query_state == "SUCCEEDED":
-            while True:
-                params = {"QueryExecutionId": query_execution_id}
-                if next_token:
-                    params["NextToken"] = next_token
-
-                response = self.athena_client.get_query_results(**params)
-                columns = [
-                    col.get("VarCharValue", None)  # Use get to avoid KeyError
-                    for col in response["ResultSet"]["Rows"][0]["Data"]
-                ]
-                results.append(columns)  # Add the header row
-                results.extend(
-                    [
-                        [
-                            cell.get("VarCharValue", None) for cell in row["Data"]
-                        ]  # Use get to avoid KeyError
-                        for row in response["ResultSet"]["Rows"][1:]
-                    ]
-                )
-
-                next_token = response.get("NextToken")
-                if not next_token:
-                    break
-
-        return results
+        if status == "SUCCEEDED":
+            results = self.athena_client.get_query_results(QueryExecutionId=query_id)
+            # Extract the column names
+            columns = [
+                col["Name"]
+                for col in results["ResultSet"]["ResultSetMetadata"]["ColumnInfo"]
+            ]
+            # Extract the rows
+            rows = results["ResultSet"]["Rows"][1:]  # Skip the header row
+            return [
+                {
+                    columns[i]: row["Data"][i].get("VarCharValue", "")
+                    for i in range(len(columns))
+                }
+                for row in rows
+            ]
+        else:
+            raise Exception(f"Query failed with status: {status}")
