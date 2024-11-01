@@ -1,13 +1,29 @@
 import boto3
 import time
 import os
+from typing import Literal
 
 
 class IAM:
-    def __init__(self, stage="dev"):
+    def __init__(self, stage: Literal["dev", "prod"] = "dev") -> None:
+        """
+        Initializes the IAM class with the specified stage.
+
+        Args:
+            stage (Literal["dev", "prod"]): The stage of the environment, either 'dev' or 'prod'.
+        """
         self.stage = stage
 
-    def get_iam_role(self):
+    def get_iam_role(self) -> str:
+        """
+        Retrieves the IAM role based on the current stage.
+
+        Returns:
+            str: The IAM role name corresponding to the stage.
+
+        Raises:
+            ValueError: If the stage is not 'dev' or 'prod'.
+        """
         if self.stage == "dev":
             return "DevAdminRole"
         elif self.stage == "prod":
@@ -15,7 +31,16 @@ class IAM:
         else:
             raise ValueError(f"Invalid stage: {self.stage}")
 
-    def get_aws_account_id(self):
+    def get_aws_account_id(self) -> str:
+        """
+        Retrieves the AWS account ID based on the current stage.
+
+        Returns:
+            str: The AWS account ID corresponding to the stage.
+
+        Raises:
+            ValueError: If the stage is not 'dev' or 'prod'.
+        """
         if self.stage == "dev":
             return "654654324108"
         elif self.stage == "prod":
@@ -26,8 +51,20 @@ class IAM:
 
 class AWSCredentials(IAM):
     @staticmethod
-    def get_aws_credentials(aws_access_key_id, aws_secret_access_key, iam_instance):
+    def get_aws_credentials(
+        aws_access_key_id: str, aws_secret_access_key: str, iam_instance: IAM
+    ) -> None:
+        """
+        Assumes an IAM role and sets the AWS credentials in the environment variables.
 
+        Args:
+            aws_access_key_id (str): The AWS access key ID.
+            aws_secret_access_key (str): The AWS secret access key.
+            iam_instance (IAM): An instance of the IAM class to retrieve role and account ID.
+
+        Raises:
+            Exception: If the role assumption fails.
+        """
         aws_account_id = iam_instance.get_aws_account_id()
         role = iam_instance.get_iam_role()
         aws_region = "eu-west-2"

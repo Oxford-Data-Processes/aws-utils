@@ -2,10 +2,22 @@ import boto3
 import json
 from datetime import datetime
 import pytz
+from typing import List, Dict, Any
 
 
 class LogsHandler:
-    def log_action(self, bucket_name, project_name, action, user):
+    def log_action(
+        self, bucket_name: str, project_name: str, action: str, user: str
+    ) -> None:
+        """
+        Logs an action performed by a user to an S3 bucket.
+
+        Args:
+            bucket_name (str): The name of the S3 bucket where logs will be stored.
+            project_name (str): The name of the project associated with the log entry.
+            action (str): The action being logged.
+            user (str): The user who performed the action.
+        """
         s3_client = boto3.client("s3")
 
         timestamp = datetime.now(pytz.timezone("Europe/London")).strftime(
@@ -22,7 +34,17 @@ class LogsHandler:
             ContentType="application/json",
         )
 
-    def get_logs(self, bucket_name, project_name):
+    def get_logs(self, bucket_name: str, project_name: str) -> List[Dict[str, Any]]:
+        """
+        Retrieves logs from an S3 bucket for a specified project.
+
+        Args:
+            bucket_name (str): The name of the S3 bucket from which to retrieve logs.
+            project_name (str): The name of the project whose logs are to be retrieved.
+
+        Returns:
+            List[Dict[str, Any]]: A list of log entries for the specified project.
+        """
         s3_client = boto3.client("s3")
         log_prefix = f"logs/{project_name}/"
 
@@ -32,7 +54,7 @@ class LogsHandler:
         if not logs:
             return []
 
-        log_data = []
+        log_data: List[Dict[str, Any]] = []
 
         for log in logs:
             log_key = log["Key"]
