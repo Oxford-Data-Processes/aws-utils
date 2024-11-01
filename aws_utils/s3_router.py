@@ -1,5 +1,5 @@
 import logging
-import events
+from aws_utils import events
 from typing import Dict, Any, Tuple, List
 
 logger = logging.getLogger(__name__)
