@@ -55,6 +55,5 @@ class SQSHandler:
                 self.sqs_client.delete_message(
                     QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
                 )
-                print(f"Deleted message: {message['MessageId']}")
             except ClientError as e:
-                print(f"Error deleting message {message['MessageId']}: {e}")
+                raise Exception(f"Error deleting message {message['MessageId']}: {e}")
