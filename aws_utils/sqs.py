@@ -1,6 +1,6 @@
 import os
 import boto3
-import re
+from botocore.exceptions import ClientError
 from typing import List, Dict, Optional
 
 
@@ -18,19 +18,29 @@ class SQSHandler:
             aws_session_token=os.environ["AWS_SESSION_TOKEN"],
         )
 
-    @staticmethod
-    def extract_datetime_from_sns_message(message: str) -> Optional[str]:
+    def get_all_sqs_messages(self, queue_url: str) -> List[Dict[str, str]]:
         """
-        Extracts a datetime string from the given SNS message.
+        Retrieves all messages from the specified SQS queue.
 
         Args:
-            message (str): The SNS message from which to extract the datetime.
+            queue_url (str): The URL of the SQS queue from which to retrieve messages.
 
         Returns:
-            Optional[str]: The extracted datetime string if found, otherwise None.
+            List[Dict[str, str]]: A list of messages from the SQS queue.
         """
-        match = re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", message)
-        return match.group(0) if match else None
+        messages: List[Dict[str, str]] = []
+        while True:
+            response = self.sqs_client.receive_message(
+                QueueUrl=queue_url,
+                MaxNumberOfMessages=10,  # Max is 10
+                WaitTimeSeconds=0,  # Long polling can be used here
+                VisibilityTimeout=0,  # Set to 0 to make messages immediately available
+            )
+            if "Messages" in response:
+                messages.extend(response["Messages"])
+            else:
+                break  # No more messages to retrieve
+        return messages
 
     def delete_all_sqs_messages(self, queue_url: str) -> None:
         """
@@ -39,49 +49,12 @@ class SQSHandler:
         Args:
             queue_url (str): The URL of the SQS queue from which to delete messages.
         """
-        all_messages = self.get_all_sqs_messages(queue_url)
+        all_messages: List[Dict[str, str]] = self.get_all_sqs_messages(queue_url)
         for message in all_messages:
-            self.sqs_client.delete_message(
-                QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
-            )
-
-    def get_all_sqs_messages(self, queue_url: str) -> List[Dict[str, Optional[str]]]:
-        """
-        Retrieves all messages from the specified SQS queue.
-
-        Args:
-            queue_url (str): The URL of the SQS queue from which to retrieve messages.
-
-        Returns:
-            List[Dict[str, Optional[str]]]: A list of dictionaries containing the
-            timestamp and message body for each message. Eg. [{"timestamp": "2024-02-20T12:00:00", "message": "Hello, world!"}]
-            Timestamp format: YYYY-MM-DDTHH:MM:SS
-        """
-        all_messages = []
-        try:
-            while True:
-                response = self.sqs_client.receive_message(
-                    QueueUrl=queue_url,
-                    MaxNumberOfMessages=10,
-                    WaitTimeSeconds=5,
-                    MessageAttributeNames=["All"],
+            try:
+                self.sqs_client.delete_message(
+                    QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
                 )
-                messages = response.get("Messages", [])
-
-                if not messages:
-                    break
-
-                for message in messages:
-                    timestamp = self.extract_datetime_from_sns_message(message["Body"])
-                    message_body = message["Body"]
-                    all_messages.append(
-                        {"timestamp": timestamp, "message": message_body}
-                    )
-
-            if not all_messages:
-                return []
-
-            all_messages.sort(key=lambda x: x["timestamp"])
-            return all_messages
-        except Exception as e:
-            raise Exception(e)
+                print(f"Deleted message: {message['MessageId']}")
+            except ClientError as e:
+                print(f"Error deleting message {message['MessageId']}: {e}")
