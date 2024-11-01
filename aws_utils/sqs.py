@@ -1,7 +1,7 @@
 import os
 import boto3
 from botocore.exceptions import ClientError
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 
 class SQSHandler:
@@ -32,14 +32,14 @@ class SQSHandler:
         while True:
             response = self.sqs_client.receive_message(
                 QueueUrl=queue_url,
-                MaxNumberOfMessages=10,  # Max is 10
-                WaitTimeSeconds=0,  # Long polling can be used here
-                VisibilityTimeout=0,  # Set to 0 to make messages immediately available
+                MaxNumberOfMessages=10,
+                WaitTimeSeconds=10,
+                VisibilityTimeout=30,
             )
             if "Messages" in response:
                 messages.extend(response["Messages"])
             else:
-                break  # No more messages to retrieve
+                break
         return messages
 
     def delete_all_sqs_messages(self, queue_url: str) -> None:
