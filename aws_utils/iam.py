@@ -1,7 +1,16 @@
 import boto3
 import time
 import os
-from typing import Literal
+from typing import Literal, Dict
+
+
+def get_aws_credentials(variables: Dict[str, str]) -> None:
+    iam_instance = IAM(stage=variables["STAGE"])
+    AWSCredentials.get_aws_credentials(
+        aws_access_key_id=variables["AWS_ACCESS_KEY_ID_ADMIN"],
+        aws_secret_access_key=variables["AWS_SECRET_ACCESS_KEY_ADMIN"],
+        iam_instance=iam_instance,
+    )
 
 
 class IAM:
