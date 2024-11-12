@@ -57,6 +57,6 @@ class LogsHandler:
             log_object = s3_handler.load_json_from_s3(
                 bucket_name=bucket_name, json_key=log_key
             )
-            log_data.append(log_object)
+            log_data.append(log_object[0])
 
         return log_data
