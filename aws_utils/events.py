@@ -18,7 +18,7 @@ class EventsHandler:
         Args:
             event_bus_name (str): The name of the event bus to publish the event to.
             event_source (str): The source of the event.
-            detail_type (str): The type of detail for the event.
+            detail_type (str): The event name
             detail (Any): The detail of the event, which will be serialized to JSON.
 
         Returns:

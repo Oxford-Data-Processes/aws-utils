@@ -1,8 +1,7 @@
-import boto3
-import json
 from datetime import datetime
 import pytz
 from typing import List, Dict, Any
+from aws_utils.s3 import S3Handler
 
 
 class LogsHandler:
@@ -13,13 +12,11 @@ class LogsHandler:
         Logs an action performed by a user to an S3 bucket.
 
         Args:
-            bucket_name (str): The name of the S3 bucket where logs will be stored.
+            bucket_name (str): The name of the S3 bucket where the log entry will be stored.
             project_name (str): The name of the project associated with the log entry.
-            action (str): The action being logged.
-            user (str): The user who performed the action.
+            action (str): A description of the action being logged.
+            user (str): The identifier of the user who performed the action.
         """
-        s3_client = boto3.client("s3")
-
         timestamp = datetime.now(pytz.timezone("Europe/London")).strftime(
             "%Y-%m-%dT%H:%M:%S"
         )
@@ -27,11 +24,11 @@ class LogsHandler:
 
         log_file_name = f"logs/{project_name}/{timestamp}.json"
 
-        s3_client.put_object(
-            Bucket=bucket_name,
-            Key=log_file_name,
-            Body=json.dumps([log_entry]) + "\n",
-            ContentType="application/json",
+        s3_handler = S3Handler()
+        s3_handler.upload_json_to_s3(
+            bucket_name=bucket_name,
+            json_key=log_file_name,
+            json_data=log_entry,
         )
 
     def get_logs(self, bucket_name: str, project_name: str) -> List[Dict[str, Any]]:
@@ -39,17 +36,16 @@ class LogsHandler:
         Retrieves logs from an S3 bucket for a specified project.
 
         Args:
-            bucket_name (str): The name of the S3 bucket from which to retrieve logs.
+            bucket_name (str): The name of the S3 bucket from which to retrieve log entries.
             project_name (str): The name of the project whose logs are to be retrieved.
 
         Returns:
-            List[Dict[str, Any]]: A list of log entries for the specified project.
+            List[Dict[str, Any]]: A list of log entries for the specified project,
+            where each entry is represented as a dictionary.
         """
-        s3_client = boto3.client("s3")
+        s3_handler = S3Handler()
         log_prefix = f"logs/{project_name}/"
-
-        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=log_prefix)
-        logs = response.get("Contents", [])
+        logs = s3_handler.list_objects(bucket_name=bucket_name, prefix=log_prefix)
 
         if not logs:
             return []
@@ -58,9 +54,9 @@ class LogsHandler:
 
         for log in logs:
             log_key = log["Key"]
-            log_object = s3_client.get_object(Bucket=bucket_name, Key=log_key)
-            log_content = json.loads(log_object["Body"].read().decode("utf-8"))[0]
-
-            log_data.append(log_content)
+            log_object = s3_handler.load_json_from_s3(
+                bucket_name=bucket_name, json_key=log_key
+            )
+            log_data.append(log_object)
 
         return log_data
