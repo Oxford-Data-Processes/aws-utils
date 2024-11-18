@@ -128,6 +128,7 @@ class S3Router:
         for key in config.keys():
             prefixes = config[key]["prefixes"]
             lambda_name = config[key]["lambda_name"]
+            logger.info(f"Processing event for {lambda_name}")
             S3Router.process_event_for_lambda(
                 events_handler, detail, lambda_name, object_key, prefixes
             )
