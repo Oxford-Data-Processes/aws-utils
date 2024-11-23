@@ -1,5 +1,6 @@
 from datetime import datetime
 import pytz
+import uuid
 from typing import List, Dict, Any
 from aws_utils.s3 import S3Handler
 
@@ -20,7 +21,12 @@ class LogsHandler:
         timestamp = datetime.now(pytz.timezone("Europe/London")).strftime(
             "%Y-%m-%dT%H:%M:%S"
         )
-        log_entry = {"timestamp": timestamp, "action": action, "user": user}
+        log_entry = {
+            "log_id": str(uuid.uuid4()),
+            "timestamp": timestamp,
+            "action": action,
+            "user": user,
+        }
 
         log_file_name = f"logs/{project_name}/{timestamp}.json"
 
