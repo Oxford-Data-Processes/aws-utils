@@ -110,6 +110,14 @@ class S3Handler:
         excel_data = response["Body"].read()
         return excel_data
 
+    def load_generic_file_from_s3(self, bucket_name: str, file_key: str) -> bytes:
+        """
+        Load a generic file from S3.
+        """
+        response = self.s3_client.get_object(Bucket=bucket_name, Key=file_key)
+        file_data = response["Body"].read()
+        return file_data
+
     def upload_generic_file_to_s3(
         self, bucket_name: str, file_key: str, file_data: bytes
     ):
