@@ -33,8 +33,6 @@ def get_aws_credentials(variables: Dict[str, str]) -> None:
     os.environ["AWS_SESSION_TOKEN"] = credentials["SessionToken"]
     os.environ["AWS_REGION"] = aws_region
     os.environ["AWS_ACCOUNT_ID"] = aws_account_id
-    os.environ["AWS_ACCESS_KEY_ID_ADMIN"] = ""
-    os.environ["AWS_SECRET_ACCESS_KEY_ADMIN"] = ""
 
 
 def get_iam_role(stage: Literal["dev", "prod"]) -> str:
